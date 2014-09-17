@@ -35,7 +35,7 @@ void Cat::SetAge(int age)
  return itsWeight;
 }
 
- int Cat::Meow()
+ void Cat::Meow()
 {
  cout<<"Meow...";
 }
