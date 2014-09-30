@@ -1,4 +1,4 @@
-//In this example rCat is a reference to Frisky
+//In this example rCat is a reference to Frisky.
 
 #include <iostream>
 using namespace std;
