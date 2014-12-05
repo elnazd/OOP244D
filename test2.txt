@@ -1,0 +1,270 @@
+Question 1:
+
+/*******************************************************/
+/*grade.h*/
+#include <iostream>
+#include<iomanip>
+const int N = 31;
+
+class Grade{
+	double mark;
+	char description[N];
+	
+public:
+
+	Grade();
+	Grade(const char* , const double);
+	double get() const; 
+	void display(std::ostream& os) const;
+
+};
+
+
+/*Grade.cpp*/
+#include "Grade.h"
+
+Grade::Grade(){
+	mark=0.0; 
+	description[0]='\0';
+}
+
+Grade::Grade(const char* desc, const double m){
+	mark=m; 
+	strcpy(description,desc);
+}
+
+double Grade::get() const{
+	return mark;
+}
+
+void Grade::display(std::ostream& os) const{
+
+	os << mark << '-' <<description <<std::endl;
+	
+}
+
+
+/*******************************************************/
+Question 2:
+
+/*Evaluation.h*/
+#include <iostream>
+#include<iomanip>
+#include "Grade.h"
+const int M = 6;
+
+class Evaluation{
+	Grade *grades;
+	char code[M+1];
+	int size;
+	
+public:
+
+Evaluation();
+Evaluation(const char*, const Grade *, const int);
+Evaluation(const Evaluation &);
+
+void display(std::ostream& os) const;
+bool empty() const;
+double calculateAverage() const;
+friend bool operator<(const Evaluation &,const int);
+Evaluation& operator=(const Evaluation &);
+~Evaluation(){delete [] grades;}
+};
+
+std::ostream& operator<<(std::ostream& , const Evaluation& );
+
+/*Evaluation.cpp*/
+
+#include<cstring>
+#include <iostream>
+
+#include "Evaluation.h"
+
+using namespace std;
+
+//The default constructor 
+Evaluation::Evaluation(){
+	grades=nullptr;
+	code[0]='\0';
+	size =0;
+}
+
+//The three argument constructor 
+Evaluation::Evaluation(const char* cod, const Grade g[], const int n){
+
+	if(g!=nullptr && n>0 && cod[0]!='\0'){
+		strcpy(code,cod);
+		grades = new Grade[n];
+		size=n;
+		for(int i =0; i<size; i++){
+				
+				grades[i]=g[i];
+		}
+	}
+	else{
+		grades=nullptr;
+        *this = Evaluation();
+		}
+}
+
+//The copy constructor 
+Evaluation::Evaluation(const Evaluation &src){
+	grades = nullptr;
+	*this = src;
+}
+
+bool Evaluation::empty() const {
+    return size == 0;
+}
+
+double Evaluation::calculateAverage() const{
+		double total=0;
+		for(int i=0;i < size;i++){
+			total += grades[i].get();
+		}
+		return total/size;
+}
+
+void Evaluation::display(ostream& os) const{
+
+	if (!empty()){
+		    os << code << '-' <<setw(6) << fixed << setprecision(2) << calculateAverage() <<endl;
+		}   
+
+}
+ostream& operator<<(ostream& os, const Evaluation& c) {
+    c.display(os);
+    return os;
+}
+
+Evaluation& Evaluation::operator=(const Evaluation &src){
+	if (this != &src){ 
+	
+		size = src.size;
+		strcpy(code,src.code);
+		
+		delete[] grades;
+		
+		if (src.grades != nullptr){ 
+			grades = new Grade[size];
+			for (int i = 0; i < size; i++){
+				grades[i] = src.grades[i];
+			}
+
+		}
+		else{
+			grades = nullptr;
+		}
+	}
+		return *this;
+}
+
+bool operator<(const Evaluation &one,const int two){
+
+	return one.calculateAverage() < two;
+}
+
+/*******************************************************/
+
+Question 3:
+Program:
+#include <iostream>
+using namespace std;
+
+class Base {
+   public:
+      Base() {cout << "Base Ctor" << endl;}
+      ~Base() {cout << "Base Dtor" << endl;}
+      void alpha() {cout << "Base alpha" << endl;}
+      void gamma() {cout << "Base gamma" << endl;}
+};
+
+class Extend : public Base {
+   public:
+      Extend() {cout << "Extend Ctor" << endl;}
+      ~Extend() {cout << "Extend Dtor" << endl;}
+      void alpha() {cout << "Extend alpha" << endl;}
+};
+
+int main() {
+   Base b;
+   Extend c;
+   b.gamma();
+   c.gamma();
+   c.alpha();
+   
+   return 0;
+}
+
+
+output:
+Base Ctor
+Base Ctor
+Extend Ctor
+Base gamma
+Base gamma
+Extend alpha
+Extend Dtor
+Base Dtor
+Base Dtor
+
+/*******************************************************/
+#include <iostream>
+#include <cstring>
+using namespace std;
+class Record{
+	char word[11];
+
+  public:
+  	Record(const char* w){
+		strcpy(word,w);
+		cout<<"IN - ";
+		display();
+	}
+  	Record(const Record& s){
+		strcpy(word, s.word);
+		strcat(word,"DUP");
+	}
+	void operator=(const char* w){
+		strcpy(word, w);
+		cout<<"move"<<endl;
+	}
+  	void display(){
+		cout<<word<<endl;
+	}
+	~Record(){
+		cout<<"~OUT -";
+		display();
+	}
+	friend void add(Record &r, char * res){
+		strcpy(res,r.word);
+	}
+
+	friend void multiply(Record r, char * res){
+		strcpy(res,r.word);
+	}
+};
+
+int main(){
+	char first[20],second[20];
+	Record r("Cloud");
+
+	add(r,first);
+	cout<<first<<endl;
+	multiply(r, second);
+	cout<<second<<endl;
+	Record b("Physics");
+	return 0;
+}
+
+output:
+IN - Cloud
+Cloud
+~OUT -CloudDUP
+CloudDUP
+IN - Physics
+~OUT -Physics
+~OUT -Cloud
+
+
